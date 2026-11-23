@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+
+  /* brand */
+  --color-ink: #141414;
+  --color-amber: #D9691F;
+  --color-amber-dark: #9A4413;
+  --color-amber-light: #E07A2E;
+  --color-amber-tint: #FBEADB;
+  --color-amber-surface: #FFF5EC;
+  --color-amber-border: #F1C8A6;
+
+  /* text */
+  --color-text: #1A1512;
+  --color-text-2: #4A3E36;
+  --color-muted: #857469;
+  --color-subtle: #A2948A;
+  --color-sidebar-text: #ECDFD4;
+
+  /* surfaces and lines */
+  --color-background: #F7F0E9;
+  --color-surface: #FFFFFF;
+  --color-soft: #F4EBE3;
+  --color-input: #FFFCF8;
+  --color-line: #EEE3D9;
+  --color-line-strong: #E7D9CC;
+
+  /* status */
+  --color-success: #166534;
+  --color-success-bg: #DCFCE7;
+  --color-warning: #92400E;
+  --color-warning-bg: #FEF3C7;
+  --color-info: #1D4ED8;
+  --color-info-bg: #E0EAFF;
+  --color-danger: #B42318;
+  --color-danger-bg: #FEE4E2;
+
+  /* shape and depth */
+  --radius-pill: 10px;
+  --radius-input: 14px;
+  --radius-card: 20px;
+  --radius-button: 26px;
+  --shadow-card: 0 6px 18px rgba(60, 40, 25, 0.06);
+  --shadow-primary: 0 8px 18px rgba(20, 16, 12, 0.18);
+
+  /* shadcn/ui token mappings */
+  --color-background: #F7F0E9;
+  --color-foreground: #1A1512;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1512;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1512;
+  --color-primary: #141414;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F4EBE3;
+  --color-secondary-foreground: #1A1512;
+  --color-muted: #F4EBE3;
+  --color-muted-foreground: #766659; /* darkened from #857469 for AA (4.5:1) on white */
+  --color-accent: #FBEADB;
+  --color-accent-foreground: #1A1512;
+  --color-destructive: #B42318;
+  --color-border: #EEE3D9;
+  --color-ring: #D9691F;
+  --radius: 14px;
+}
+
+@layer base {
+  * {
+    @apply border-line outline-amber/30;
+  }
+  body {
+    @apply bg-background text-text font-sans antialiased;
+  }
+}
