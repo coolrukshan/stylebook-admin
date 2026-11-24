@@ -63,7 +63,7 @@ describe("MaskedValue", () => {
     const reveal = () =>
       Promise.resolve<ActionResult<string>>({
         ok: false,
-        error: { status: 403, code: "FORBIDDEN", message: "You don't have permission to do that.", field: null, requestId: "r" },
+        error: { status: 403, code: "FORBIDDEN", message: "You don't have permission to do that.", field: null, requestId: "r", retryAfterSeconds: null },
       });
     render(<MaskedValue masked="•••• 4821" label="account number" subject="X" reveal={reveal} />);
     await userEvent.click(screen.getByRole("button", { name: /Reveal/ }));

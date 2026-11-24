@@ -5,14 +5,17 @@ import type { SessionOptions } from "iron-session";
  * as well as server code. Do not add shared state here.
  */
 export type SessionData = {
-  accessToken: string;
-  adminId: string;
+  accessToken?: string;
+  adminId?: string;
+  adminName?: string;
   /** Epoch ms when the admin JWT expires (60 min, no refresh endpoint). */
-  expiresAt: number;
+  expiresAt?: number;
   /** Epoch ms of the last navigation, used for the 30 min idle lock. */
-  lastActiveAt: number;
-  /** Set between password step and TOTP step. */
+  lastActiveAt?: number;
+  /** Set between password step and TOTP step. Sealed cookie only. */
   partialToken?: string;
+  /** Present while enrolling 2FA; never leaves the server except to the setup page render. */
+  totpSetup?: { uri: string; secret: string };
 };
 
 export const SESSION_COOKIE = "sb_admin";

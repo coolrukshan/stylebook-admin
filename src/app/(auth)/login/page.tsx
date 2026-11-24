@@ -1,11 +1,24 @@
-// Stub. The real A-01 login + 2FA screen is built in spec 01.
-export default function LoginPage() {
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { AuthCard } from "@/components/sb/auth-card";
+import { LoginForm } from "@/features/auth/components/login-form";
+import { safeNextPath } from "@/lib/auth/idle";
+import { isSessionActive } from "@/lib/auth/session";
+
+async function Login({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const next = safeNextPath((await searchParams).next);
+  if (await isSessionActive()) redirect(next);
   return (
-    <main className="grid min-h-screen place-items-center bg-background p-6">
-      <div className="w-full max-w-sm rounded-card bg-surface p-8 shadow-card">
-        <h1 className="text-xl font-bold text-text">Sign in</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Admin sign-in is coming in the next build step.</p>
-      </div>
-    </main>
+    <AuthCard title="Sign in" description="StyleBook staff only. You'll be asked for a 2FA code next.">
+      <LoginForm next={next} />
+    </AuthCard>
+  );
+}
+
+export default function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  return (
+    <Suspense>
+      <Login searchParams={searchParams} />
+    </Suspense>
   );
 }

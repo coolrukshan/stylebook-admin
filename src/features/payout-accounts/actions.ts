@@ -32,6 +32,7 @@ export async function revealBankAccount(
         message: "Some details are not valid. Check the form and try again.",
         field: null,
         requestId: null,
+        retryAfterSeconds: null,
       },
     };
   }

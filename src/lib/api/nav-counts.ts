@@ -1,7 +1,7 @@
 import "server-only";
 import { getApiClient } from "./client";
 
-export type NavCountKey = "applications" | "payoutAccounts" | "disputes";
+export type NavCountKey = "applications" | "payoutAccounts" | "disputes" | "moderation";
 export type NavCount = { count: number; capped: boolean };
 export type NavCounts = Partial<Record<NavCountKey, NavCount>>;
 
@@ -43,6 +43,10 @@ export async function getNavCounts(keys: readonly NavCountKey[]): Promise<NavCou
   );
   run("disputes", () =>
     api.GET("/v1/admin/disputes", { params: { query: { status: "admin_review", limit: LIMIT } } }),
+  );
+
+  run("moderation", () =>
+    api.GET("/v1/admin/moderation", { params: { query: { status: "pending", limit: LIMIT } } }),
   );
 
   const counts: NavCounts = {};

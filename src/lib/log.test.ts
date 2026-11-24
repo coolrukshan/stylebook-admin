@@ -24,3 +24,14 @@ describe("redact", () => {
     expect(redact(null)).toBeNull();
   });
 });
+
+describe("redact (auth secrets)", () => {
+  it("masks credentials, codes and tokens", () => {
+    expect(
+      redact({ password: "p", totp_code: "123456", recovery_code: "abcd", partial_token: "t", totp_secret: "S", totp_uri: "otpauth://x", recovery_codes: ["a"] }),
+    ).toEqual({
+      password: "[redacted]", totp_code: "[redacted]", recovery_code: "[redacted]", partial_token: "[redacted]",
+      totp_secret: "[redacted]", totp_uri: "[redacted]", recovery_codes: "[redacted]",
+    });
+  });
+});

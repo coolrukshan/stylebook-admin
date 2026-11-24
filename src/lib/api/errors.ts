@@ -10,6 +10,8 @@ export class ApiError extends Error {
   readonly code: string;
   readonly field: string | null;
   readonly requestId: string | null;
+  /** From `Retry-After` (or body `retry_after`) on 429, when provided. */
+  readonly retryAfterSeconds: number | null;
 
   constructor(init: {
     status: number;
@@ -17,6 +19,7 @@ export class ApiError extends Error {
     message?: string;
     field?: string | null;
     requestId?: string | null;
+    retryAfterSeconds?: number | null;
   }) {
     super(init.message ?? `API error ${init.status}`);
     this.name = "ApiError";
@@ -24,6 +27,7 @@ export class ApiError extends Error {
     this.code = init.code ?? defaultCode(init.status);
     this.field = init.field ?? null;
     this.requestId = init.requestId ?? null;
+    this.retryAfterSeconds = init.retryAfterSeconds ?? null;
   }
 }
 
@@ -46,6 +50,7 @@ export type ActionError = {
   message: string;
   field: string | null;
   requestId: string | null;
+  retryAfterSeconds: number | null;
 };
 
 export type ActionResult<T = undefined> =
@@ -75,6 +80,7 @@ export function toActionError(error: ApiError): ActionError {
     message: userMessage(error.status),
     field: error.field,
     requestId: error.requestId,
+    retryAfterSeconds: error.retryAfterSeconds,
   };
 }
 
@@ -98,11 +104,19 @@ export function errorFromResponse(
   const b = (parsedBody && typeof parsedBody === "object" ? parsedBody : {}) as Record<string, unknown>;
   return new ApiError({
     status: response.status,
+    retryAfterSeconds: parseRetryAfter(response.headers.get("retry-after"), b.retry_after),
     code: typeof b.code === "string" ? b.code : undefined,
     message: typeof b.message === "string" ? b.message : undefined,
     field: typeof b.field === "string" ? b.field : null,
     requestId: response.headers.get("x-request-id") ?? requestId,
   });
+}
+
+/** Seconds from a `Retry-After` header (delta-seconds) or a numeric body value. */
+export function parseRetryAfter(header: string | null, body?: unknown): number | null {
+  const fromHeader = header && /^\d+$/.test(header.trim()) ? Number(header) : null;
+  if (fromHeader !== null) return fromHeader;
+  return typeof body === "number" && Number.isFinite(body) && body > 0 ? Math.ceil(body) : null;
 }
 
 type FetchResult = { data?: unknown; error?: unknown; response: Response };

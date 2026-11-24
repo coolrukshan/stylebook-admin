@@ -14,7 +14,7 @@ const { reasonDialogs } = await import("./reason-presets");
 const ok: ActionResult<unknown> = { ok: true, data: undefined };
 const fail = (status: number): ActionResult<unknown> => ({
   ok: false,
-  error: { status, code: "X", message: "Safe copy.", field: null, requestId: "req-7" },
+  error: { status, code: "X", message: "Safe copy.", field: null, requestId: "req-7", retryAfterSeconds: null },
 });
 
 function setup(onConfirm = vi.fn(async (_r: string, _k: string) => ok), config = reasonDialogs.suspendUser("Nimal Perera")) {

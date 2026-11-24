@@ -10,7 +10,7 @@ import { sessionOptions, type SessionData } from "@/lib/auth/session-options";
  */
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const isAuthPage = pathname === "/login" || pathname === "/lock";
+  const isAuthPage = pathname === "/login" || pathname.startsWith("/login/") || pathname === "/lock";
 
   const response = NextResponse.next();
   const session = await getIronSession<SessionData>(
@@ -19,8 +19,12 @@ export async function proxy(request: NextRequest) {
   );
   const state = evaluateSession(session, Date.now());
 
+  const isApi = pathname.startsWith("/api/");
+
   if (state === "anonymous" || state === "expired") {
     if (isAuthPage) return response;
+    // fetch() callers (search, task polling) need a status, not a login page.
+    if (isApi) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
     const url = new URL("/login", request.url);
     if (pathname !== "/") url.searchParams.set("next", safeNextPath(pathname + search));
     return NextResponse.redirect(url);
@@ -28,6 +32,7 @@ export async function proxy(request: NextRequest) {
 
   if (state === "idle") {
     if (isAuthPage) return response;
+    if (isApi) return NextResponse.json({ error: "locked" }, { status: 401 });
     const url = new URL("/lock", request.url);
     url.searchParams.set("next", safeNextPath(pathname + search));
     return NextResponse.redirect(url);
