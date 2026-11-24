@@ -20,6 +20,14 @@ type Props = {
   /** Audited reveal. A Server Action bound to the record id and reason. Omit for masked-only values (email/phone). */
   reveal?: () => Promise<ActionResult<string>>;
   mono?: boolean;
+  /**
+   * Optional "one revealed at a time" coordination. Give every row a unique
+   * `revealKey`, and share one `useState<string | null>` as activeKey /
+   * onActiveChange (the setter). Revealing another row hides this one.
+   */
+  revealKey?: string;
+  activeKey?: string | null;
+  onActiveChange?: (update: (current: string | null) => string | null) => void;
 };
 
 /**
@@ -27,7 +35,7 @@ type Props = {
  * logs or storage. It is dropped on Hide, after 60 s, on navigation and on
  * unmount. Reveal itself is an audited API call, never a client-side unmask.
  */
-export function MaskedValue({ masked, label, subject, reveal, mono = true }: Props) {
+export function MaskedValue({ masked, label, subject, reveal, mono = true, revealKey, activeKey, onActiveChange }: Props) {
   const [value, setValue] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -38,12 +46,17 @@ export function MaskedValue({ masked, label, subject, reveal, mono = true }: Pro
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
     setValue(null);
-  }, []);
+    if (revealKey) onActiveChange?.((cur) => (cur === revealKey ? null : cur));
+  }, [revealKey, onActiveChange]);
 
   // Hide on navigation (state adjusted during render, not in an effect).
   const [seenPath, setSeenPath] = useState(pathname);
   if (seenPath !== pathname) {
     setSeenPath(pathname);
+    setValue(null);
+  }
+  // Another row became the revealed one: drop this value.
+  if (revealKey && value !== null && activeKey !== undefined && activeKey !== revealKey) {
     setValue(null);
   }
   useEffect(() => () => {
@@ -60,6 +73,7 @@ export function MaskedValue({ masked, label, subject, reveal, mono = true }: Pro
         return;
       }
       setValue(result.data);
+      if (revealKey) onActiveChange?.(() => revealKey);
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(hide, REVEAL_TIMEOUT_MS);
     });

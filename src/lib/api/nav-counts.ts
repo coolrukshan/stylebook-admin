@@ -8,6 +8,11 @@ export type NavCounts = Partial<Record<NavCountKey, NavCount>>;
 
 const LIMIT = 50; // API maximum
 
+/** `verified=false` also returns rejected accounts; they are not waiting for anyone. */
+export function isAwaitingVerification(item: unknown): boolean {
+  return !(item as { rejected_at?: string | null }).rejected_at;
+}
+
 /**
  * The API has no `GET /v1/admin/counts` (open question 1, default: derive).
  * Counts come from the three list endpoints (one page each); a count at the
@@ -23,13 +28,14 @@ export async function getNavCounts(keys: readonly NavCountKey[]): Promise<NavCou
   const run = (
     key: NavCountKey,
     call: () => Promise<{ data?: { items: unknown[]; next_cursor?: string | null } }>,
+    include: (item: unknown) => boolean = () => true,
   ) => {
     if (!wanted.has(key)) return;
     tasks.push(
       call().then(
         ({ data }): [NavCountKey, NavCount | null] =>
           data
-            ? [key, { count: data.items.length, capped: Boolean(data.next_cursor) }]
+            ? [key, { count: data.items.filter(include).length, capped: Boolean(data.next_cursor) }]
             : [key, null],
         (): [NavCountKey, NavCount | null] => [key, null],
       ),
@@ -41,6 +47,7 @@ export async function getNavCounts(keys: readonly NavCountKey[]): Promise<NavCou
   );
   run("payoutAccounts", () =>
     api.GET("/v1/admin/payout-accounts", { params: { query: { verified: false, limit: LIMIT } } }),
+    isAwaitingVerification,
   );
   run("disputes", () =>
     api.GET("/v1/admin/disputes", { params: { query: { status: "admin_review", limit: LIMIT } } }),

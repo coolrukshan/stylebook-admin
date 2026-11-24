@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -74,5 +75,37 @@ describe("MaskedValue", () => {
   it("has no axe violations", async () => {
     const { container } = render(<MaskedValue masked="•••• 4821" label="account number" subject="X" reveal={() => ok("S")} />);
     expect(await axeViolations(container)).toEqual([]);
+  });
+});
+
+describe("MaskedValue one-at-a-time", () => {
+  function Pair() {
+    const [active, setActive] = useState<string | null>(null);
+    return (
+      <>
+        {["a", "b"].map((k) => (
+          <MaskedValue
+            key={k}
+            masked={`mask-${k}`}
+            label="account number"
+            subject={k}
+            reveal={() => ok(`secret-${k}`)}
+            revealKey={k}
+            activeKey={active}
+            onActiveChange={setActive}
+          />
+        ))}
+      </>
+    );
+  }
+
+  it("hides the first value when another row is revealed", async () => {
+    render(<Pair />);
+    await userEvent.click(screen.getByRole("button", { name: "Reveal account number for a" }));
+    expect(await screen.findByText("secret-a")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Reveal account number for b" }));
+    expect(await screen.findByText("secret-b")).toBeInTheDocument();
+    expect(screen.queryByText("secret-a")).toBeNull();
+    expect(screen.getByText("mask-a")).toBeInTheDocument();
   });
 });

@@ -18,7 +18,7 @@ export type NavItem = {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Dashboard", href: "/", permission: "dashboard.view" },
   { label: "Salon applications", href: "/applications", permission: "salon_application.approve", badge: "applications" },
-  { label: "Payout accounts", href: "/payout-accounts", permission: "payout_account.verify", badge: "payoutAccounts" },
+  { label: "Payout accounts", href: "/payouts/accounts", permission: "payout_account.verify", badge: "payoutAccounts" },
   { label: "Users", href: "/users", permission: "users.view" },
   { label: "Disputes and refunds", href: "/disputes", permission: "disputes.view", badge: "disputes" },
   { label: "Fees and commission", href: "/fees", permission: "fees.change" },

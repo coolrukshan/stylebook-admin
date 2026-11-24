@@ -11,7 +11,7 @@ export type Task = {
 /** Single source for dashboard rows; same keys as the sidebar badges. */
 export const TASKS: readonly Task[] = [
   { key: "applications", label: "Salon applications to review", href: "/applications", permission: "salon_application.approve" },
-  { key: "payoutAccounts", label: "Payout accounts to verify", href: "/payout-accounts?verified=false", permission: "payout_account.verify" },
+  { key: "payoutAccounts", label: "Payout accounts to verify", href: "/payouts/accounts", permission: "payout_account.verify" },
   { key: "disputes", label: "Disputes waiting for a decision", href: "/disputes?status=admin_review", permission: "disputes.view" },
   { key: "moderation", label: "Reported reviews and AI posts in moderation", href: "/moderation", permission: "moderation.act" },
 ];
