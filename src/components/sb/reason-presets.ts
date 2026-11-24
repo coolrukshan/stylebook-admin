@@ -57,6 +57,19 @@ export const reasonDialogs = {
     confirmLabel: "Reject account",
     tone: "danger",
   }),
+  /** ASSUMPTION (spec 05, open question 2): a full refund also asks for a reason. */
+  refundDispute: (disputeId: string): ReasonDialogConfig => ({
+    title: `Full refund for dispute ${disputeId}?`,
+    note: "The full disputed amount is refunded to the client's original payment method and deducted from the salon's next payout.",
+    presets: [
+      { code: "not_as_described", label: "Service not as described" },
+      { code: "salon_no_response", label: "Salon did not respond" },
+      { code: "booking_not_honoured", label: "Booking not honoured" },
+      OTHER,
+    ],
+    confirmLabel: "Refund in full",
+    tone: "neutral",
+  }),
   rejectDispute: (disputeId: string): ReasonDialogConfig => ({
     title: `Reject dispute ${disputeId}?`,
     note: "The client is told why and keeps the right to contact their bank.",
