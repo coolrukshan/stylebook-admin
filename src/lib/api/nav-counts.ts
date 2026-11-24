@@ -1,4 +1,5 @@
 import "server-only";
+import { ACTIONABLE_STATUS } from "@/features/applications/status";
 import { getApiClient } from "./client";
 
 export type NavCountKey = "applications" | "payoutAccounts" | "disputes" | "moderation";
@@ -36,7 +37,7 @@ export async function getNavCounts(keys: readonly NavCountKey[]): Promise<NavCou
   };
 
   run("applications", () =>
-    api.GET("/v1/admin/applications", { params: { query: { status: "pending", limit: LIMIT } } }),
+    api.GET("/v1/admin/applications", { params: { query: { status: ACTIONABLE_STATUS, limit: LIMIT } } }),
   );
   run("payoutAccounts", () =>
     api.GET("/v1/admin/payout-accounts", { params: { query: { verified: false, limit: LIMIT } } }),

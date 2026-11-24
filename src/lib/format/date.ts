@@ -35,3 +35,8 @@ export function formatRelative(value: DateInput, now: Date = new Date()): string
   if (Math.abs(now.getTime() - d.getTime()) < 60_000) return "just now";
   return formatDistanceStrict(d, now, { addSuffix: true });
 }
+
+/** "23 Oct" in Asia/Colombo. */
+export function formatShortDate(value: DateInput): string {
+  return formatInTimeZone(toDate(value), TIME_ZONE, "d MMM");
+}

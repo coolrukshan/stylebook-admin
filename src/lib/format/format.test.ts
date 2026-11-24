@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatAuditTime, formatDateTime, formatMonthYear, formatRelative } from "./date";
+import { formatAuditTime, formatDateTime, formatMonthYear, formatRelative, formatShortDate } from "./date";
 import { formatId, MONO_CLASS } from "./ids";
 import { formatLkr, formatLkrCompact } from "./money";
 import { formatPercent } from "./percent";
@@ -72,5 +72,11 @@ describe("ids and percent", () => {
     expect(formatPercent(4)).toBe("4%");
     expect(formatPercent(0.6)).toBe("0.6%");
     expect(formatPercent(4.1)).toBe("4.1%");
+  });
+});
+
+describe("formatShortDate", () => {
+  it("uses Asia/Colombo (UTC+05:30)", () => {
+    expect(formatShortDate("2026-10-23T20:00:00Z")).toBe("24 Oct");
   });
 });
