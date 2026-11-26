@@ -16,7 +16,7 @@ beforeEach(() => vi.clearAllMocks());
 
 describe("requirePermission (pages)", () => {
   it("returns the admin when allowed", async () => {
-    getCurrentAdmin.mockResolvedValue({ role: "finance", permissions: ["fees.change"] });
+    getCurrentAdmin.mockResolvedValue({ role: "finance", permissions: ["fees.manage"] });
     await expect(requirePermission("fees.change")).resolves.toMatchObject({ role: "finance" });
   });
   it("renders 403 when the permission is missing", async () => {

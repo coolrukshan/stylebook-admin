@@ -24,7 +24,7 @@ describe("visibleNavItems", () => {
     expect(labels).toContain("Moderation");
   });
   it("hides items the role lacks permission for", () => {
-    const labels = visibleNavItems({ role: "moderator", permissions: ["moderation.write", "audit.read"] }).map((i) => i.label);
+    const labels = visibleNavItems({ role: "moderator", permissions: ["moderation.decide", "audit.read"] }).map((i) => i.label);
     expect(labels).toEqual(["Moderation", "Audit log"]);
   });
   it("shows nothing for an admin with no permissions", () => {

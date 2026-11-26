@@ -8,7 +8,7 @@ describe("allowedTasks", () => {
     ]);
   });
   it("hides tasks outside the role's permissions", () => {
-    expect(allowedTasks({ role: "moderator", permissions: ["moderation.write"] }).map((t) => t.key)).toEqual(["moderation"]);
+    expect(allowedTasks({ role: "moderator", permissions: ["moderation.decide"] }).map((t) => t.key)).toEqual(["moderation"]);
     expect(allowedTasks({ role: "support", permissions: [] })).toEqual([]);
   });
 });

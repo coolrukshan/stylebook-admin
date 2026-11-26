@@ -1,11 +1,8 @@
 /**
- * Spec permission keys (_specs/00-shared.md section 2). Keys marked `*` there
- * are assumptions.
- *
- * The API returns `permissions: string[]` from `GET /v1/admin/me`. The only
- * real key seen in the OpenAPI examples is `users.read`, so the mapping below
- * is a best guess (`<area>.read|write`). UNVERIFIED: confirm against a real
- * `/admin/me` response and edit API_PERMISSIONS (one place).
+ * Console permission keys (_specs/00-shared.md section 2) and the API strings
+ * that grant them. The API strings come from the backend's `require_permission`
+ * declarations (StylebookAPI `core/deps.py` and the admin routers). The API
+ * also accepts the colon form of each, plus a few `:write` aliases.
  */
 export const PERMISSION_KEYS = [
   "dashboard.view",
@@ -18,6 +15,7 @@ export const PERMISSION_KEYS = [
   "payout_account.verify",
   "payout_run.approve",
   "dispute.decide",
+  "fees.view",
   "fees.change",
   "moderation.act",
   "admin.manage",
@@ -32,23 +30,30 @@ export type AdminIdentity = {
   permissions: readonly string[];
 };
 
-/** Spec key -> accepted API permission strings (any match grants). */
+/** "users.read" -> ["users.read", "users:read"], plus any extra aliases the API accepts. */
+const api = (name: string, ...aliases: string[]): readonly string[] => [name, name.replace(".", ":"), ...aliases];
+
+const PAYOUTS_MANAGE = api("payouts.manage", "payouts:write");
+const FEES_MANAGE = api("fees.manage", "fees:write");
+
+/** Console key -> API permission strings (any match grants). */
 export const API_PERMISSIONS: Record<PermissionKey, readonly string[]> = {
-  "dashboard.view": ["dashboard.read", "reports.read"],
-  "users.view": ["users.read"],
-  "disputes.view": ["disputes.read"],
-  "salons.view": ["salons.read"],
-  "salon_application.approve": ["applications.write", "applications.approve"],
-  "user.suspend": ["users.write", "users.suspend"],
-  "bank_account.reveal": ["payouts.reveal", "payouts.write"],
-  "payout_account.verify": ["payouts.write", "payouts.verify"],
-  "payout_run.approve": ["payouts.write", "payouts.approve"],
-  "dispute.decide": ["disputes.write", "disputes.decide"],
-  "fees.change": ["fees.write"],
-  "moderation.act": ["moderation.write", "moderation.act"],
-  "admin.manage": ["admins.write", "roles.write", "admins.manage"],
-  "audit.view": ["audit.read"],
-  "engagement.edit": ["engagement.write"],
+  "dashboard.view": api("reports.read"),
+  "users.view": api("users.read"),
+  "disputes.view": api("disputes.read"),
+  "salons.view": api("salons.read"),
+  "salon_application.approve": api("applications.decide"),
+  "user.suspend": api("users.suspend"),
+  "bank_account.reveal": PAYOUTS_MANAGE,
+  "payout_account.verify": PAYOUTS_MANAGE,
+  "payout_run.approve": PAYOUTS_MANAGE,
+  "dispute.decide": api("disputes.decide", "disputes:write"),
+  "fees.view": [...api("fees.read"), ...FEES_MANAGE],
+  "fees.change": FEES_MANAGE,
+  "moderation.act": api("moderation.decide"),
+  "admin.manage": api("roles.manage"),
+  "audit.view": api("audit.read"),
+  "engagement.edit": api("engagement.manage"),
 };
 
 export const SUPER_ADMIN_ROLE = "super_admin";
@@ -60,7 +65,6 @@ export function hasPermission(
 ): boolean {
   if (!me) return false;
   if (me.role === SUPER_ADMIN_ROLE) return true; // locked to all permissions (A-12)
-  if (me.permissions.includes(key)) return true;
   return API_PERMISSIONS[key].some((p) => me.permissions.includes(p));
 }
 
