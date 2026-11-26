@@ -21,7 +21,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Payout accounts", href: "/payouts/accounts", permission: "payout_account.verify", badge: "payoutAccounts" },
   { label: "Users", href: "/users", permission: "users.view" },
   { label: "Disputes and refunds", href: "/disputes", permission: "dispute.decide", badge: "disputes" },
-  { label: "Fees and commission", href: "/fees", permission: "fees.change" },
+  { label: "Fees and commission", href: "/fees", permission: "fees.view" },
   { label: "Re-engagement", href: "/engagement", permission: "engagement.edit" },
   { label: "Reports", href: "/reports", permission: "dashboard.view" },
   { label: "Moderation", href: "/moderation", permission: "moderation.act", badge: "moderation" },
