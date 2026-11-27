@@ -40,3 +40,13 @@ export function formatRelative(value: DateInput, now: Date = new Date()): string
 export function formatShortDate(value: DateInput): string {
   return formatInTimeZone(toDate(value), TIME_ZONE, "d MMM");
 }
+
+/** "25 Oct 2026" in Asia/Colombo. */
+export function formatDate(value: DateInput): string {
+  return formatInTimeZone(toDate(value), TIME_ZONE, "d MMM yyyy");
+}
+
+/** "25 Oct 2026, 09:12" in Asia/Colombo. */
+export function formatShortDateTime(value: DateInput): string {
+  return formatInTimeZone(toDate(value), TIME_ZONE, "d MMM yyyy, HH:mm");
+}

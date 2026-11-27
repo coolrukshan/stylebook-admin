@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasPermission, PERMISSION_KEYS, type PermissionKey } from "./permissions";
+import { canExportAudit, hasPermission, PERMISSION_KEYS, type PermissionKey } from "./permissions";
 
 describe("hasPermission", () => {
   it("denies anonymous", () => {
@@ -24,7 +24,7 @@ describe("hasPermission", () => {
     ["fees.view", ["fees.read", "fees:read", "fees.manage", "fees:write"]],
     ["fees.change", ["fees.manage", "fees:manage", "fees:write"]],
     ["moderation.act", ["moderation.decide", "moderation:decide"]],
-    ["admin.manage", ["roles.manage", "roles:manage"]],
+    ["admin.manage", []], // Super admin only
     ["audit.view", ["audit.read", "audit:read"]],
     ["engagement.view", ["engagement.read", "engagement:read", "engagement.manage", "engagement:manage"]],
     ["engagement.edit", ["engagement.manage", "engagement:manage"]],
@@ -46,11 +46,22 @@ describe("hasPermission", () => {
     ["fees.change", "fees.write"],
     ["fees.change", "fees.read"],
     ["moderation.act", "moderation.write"],
-    ["admin.manage", "admins.manage"],
+    ["admin.manage", "roles.manage"],
+    ["admin.manage", "roles:manage"],
     ["engagement.edit", "engagement.write"],
     ["engagement.edit", "engagement.read"],
     ["user.suspend", "users.write"],
   ] as Array<[PermissionKey, string]>)("does not grant %s for %s", (key, p) => {
     expect(hasPermission({ role: "admin", permissions: [p] }, key)).toBe(false);
+  });
+});
+
+describe("canExportAudit", () => {
+  it("needs audit.read and the Super admin or Finance role", () => {
+    expect(canExportAudit({ role: "super_admin", permissions: [] })).toBe(true);
+    expect(canExportAudit({ role: "finance", permissions: ["audit.read"] })).toBe(true);
+    expect(canExportAudit({ role: "finance", permissions: [] })).toBe(false);
+    expect(canExportAudit({ role: "support", permissions: ["audit.read"] })).toBe(false);
+    expect(canExportAudit(null)).toBe(false);
   });
 });

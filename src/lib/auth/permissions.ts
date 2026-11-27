@@ -31,31 +31,43 @@ export type AdminIdentity = {
   permissions: readonly string[];
 };
 
-/** "users.read" -> ["users.read", "users:read"], plus any extra aliases the API accepts. */
-const api = (name: string, ...aliases: string[]): readonly string[] => [name, name.replace(".", ":"), ...aliases];
+/** Extra spellings the API accepts besides the colon form (`_PERMISSION_ALIASES`). */
+const WRITE_ALIASES: Record<string, string> = {
+  "disputes.decide": "disputes:write",
+  "payouts.manage": "payouts:write",
+  "fees.manage": "fees:write",
+};
 
-const PAYOUTS_MANAGE = api("payouts.manage", "payouts:write");
-const FEES_MANAGE = api("fees.manage", "fees:write");
+/** Every string that grants an API permission: "users.read" -> ["users.read", "users:read"]. */
+export function apiForms(name: string): readonly string[] {
+  const alias = WRITE_ALIASES[name];
+  return [...new Set([name, name.replace(".", ":"), ...(alias ? [alias] : [])])];
+}
+
+const PAYOUTS_MANAGE = apiForms("payouts.manage");
+const FEES_MANAGE = apiForms("fees.manage");
 
 /** Console key -> API permission strings (any match grants). */
 export const API_PERMISSIONS: Record<PermissionKey, readonly string[]> = {
-  "dashboard.view": api("reports.read"),
-  "users.view": api("users.read"),
-  "disputes.view": api("disputes.read"),
-  "salons.view": api("salons.read"),
-  "salon_application.approve": api("applications.decide"),
-  "user.suspend": api("users.suspend"),
+  "dashboard.view": apiForms("reports.read"),
+  "users.view": apiForms("users.read"),
+  "disputes.view": apiForms("disputes.read"),
+  "salons.view": apiForms("salons.read"),
+  "salon_application.approve": apiForms("applications.decide"),
+  "user.suspend": apiForms("users.suspend"),
   "bank_account.reveal": PAYOUTS_MANAGE,
   "payout_account.verify": PAYOUTS_MANAGE,
   "payout_run.approve": PAYOUTS_MANAGE,
-  "dispute.decide": api("disputes.decide", "disputes:write"),
-  "fees.view": [...api("fees.read"), ...FEES_MANAGE],
+  "dispute.decide": apiForms("disputes.decide"),
+  "fees.view": [...apiForms("fees.read"), ...FEES_MANAGE],
   "fees.change": FEES_MANAGE,
-  "moderation.act": api("moderation.decide"),
-  "admin.manage": api("roles.manage"),
-  "audit.view": api("audit.read"),
-  "engagement.view": [...api("engagement.read"), ...api("engagement.manage")],
-  "engagement.edit": api("engagement.manage"),
+  "moderation.act": apiForms("moderation.decide"),
+  // Super admin only (A-12). The API also lets `roles.manage` holders edit any
+  // admin, including making themselves Super admin, so the console does not.
+  "admin.manage": [],
+  "audit.view": apiForms("audit.read"),
+  "engagement.view": [...apiForms("engagement.read"), ...apiForms("engagement.manage")],
+  "engagement.edit": apiForms("engagement.manage"),
 };
 
 export const SUPER_ADMIN_ROLE = "super_admin";
@@ -68,6 +80,11 @@ export function hasPermission(
   if (!me) return false;
   if (me.role === SUPER_ADMIN_ROLE) return true; // locked to all permissions (A-12)
   return API_PERMISSIONS[key].some((p) => me.permissions.includes(p));
+}
+
+/** Audit export (spec A-13): Super admin and Finance. Console-side limit only. */
+export function canExportAudit(me: AdminIdentity | null | undefined): boolean {
+  return hasPermission(me, "audit.view") && (me?.role === SUPER_ADMIN_ROLE || me?.role === "finance");
 }
 
 export function roleLabel(role: string): string {
