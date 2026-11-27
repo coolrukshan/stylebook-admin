@@ -26,6 +26,7 @@ describe("hasPermission", () => {
     ["moderation.act", ["moderation.decide", "moderation:decide"]],
     ["admin.manage", ["roles.manage", "roles:manage"]],
     ["audit.view", ["audit.read", "audit:read"]],
+    ["engagement.view", ["engagement.read", "engagement:read", "engagement.manage", "engagement:manage"]],
     ["engagement.edit", ["engagement.manage", "engagement:manage"]],
   ];
 
@@ -47,6 +48,7 @@ describe("hasPermission", () => {
     ["moderation.act", "moderation.write"],
     ["admin.manage", "admins.manage"],
     ["engagement.edit", "engagement.write"],
+    ["engagement.edit", "engagement.read"],
     ["user.suspend", "users.write"],
   ] as Array<[PermissionKey, string]>)("does not grant %s for %s", (key, p) => {
     expect(hasPermission({ role: "admin", permissions: [p] }, key)).toBe(false);

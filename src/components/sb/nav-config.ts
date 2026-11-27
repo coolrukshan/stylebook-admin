@@ -22,7 +22,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: "Users", href: "/users", permission: "users.view" },
   { label: "Disputes and refunds", href: "/disputes", permission: "dispute.decide", badge: "disputes" },
   { label: "Fees and commission", href: "/fees", permission: "fees.view" },
-  { label: "Re-engagement", href: "/engagement", permission: "engagement.edit" },
+  { label: "Re-engagement", href: "/engagement", permission: "engagement.view" },
   { label: "Reports", href: "/reports", permission: "dashboard.view" },
   { label: "Moderation", href: "/moderation", permission: "moderation.act", badge: "moderation" },
   { label: "Tickets", href: "/tickets", permission: "users.view" },

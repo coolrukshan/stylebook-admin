@@ -95,6 +95,22 @@ export const reasonDialogs = {
     confirmLabel: "Suspend user",
     tone: "danger",
   }),
+  /**
+   * ASSUMPTION (spec 07, open question 1): a holdout reset asks for a reason.
+   * The API deletes the whole group and re-randomises on every reset.
+   */
+  resetHoldout: (percentage: number): ReasonDialogConfig => ({
+    title: `Reset the holdout group at ${percentage}%?`,
+    note: `This deletes the current holdout group and picks a new one at random: about ${percentage}% of clients eligible now will receive no nudges. Clients who become eligible later are drawn at the engine's default. The comparison restarts from today; earlier holdout results are no longer comparable.`,
+    presets: [
+      { code: "change_size", label: "Change holdout size" },
+      { code: "restart_measurement", label: "Restart the measurement" },
+      { code: "unbalanced", label: "Holdout group is unbalanced" },
+      OTHER,
+    ],
+    confirmLabel: "Reset holdout",
+    tone: "danger",
+  }),
   /** ASSUMPTION (open question in spec 04): reactivate also asks for a reason. */
   reactivateUser: (name: string): ReasonDialogConfig => ({
     title: `Reactivate ${name}?`,

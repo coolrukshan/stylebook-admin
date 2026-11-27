@@ -20,6 +20,7 @@ export const PERMISSION_KEYS = [
   "moderation.act",
   "admin.manage",
   "audit.view",
+  "engagement.view",
   "engagement.edit",
 ] as const;
 
@@ -53,6 +54,7 @@ export const API_PERMISSIONS: Record<PermissionKey, readonly string[]> = {
   "moderation.act": api("moderation.decide"),
   "admin.manage": api("roles.manage"),
   "audit.view": api("audit.read"),
+  "engagement.view": [...api("engagement.read"), ...api("engagement.manage")],
   "engagement.edit": api("engagement.manage"),
 };
 
